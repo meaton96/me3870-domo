@@ -11,6 +11,7 @@ const signupPage = (req, res) => {
 };
 
 const logout = (req, res) => {
+    req.session.destroy();
   res.redirect('/');
 };
 
@@ -25,6 +26,7 @@ const login = (request, response) => {
     if (err || !account) {
       return response.status(401).json({ error: 'Wrong username or password' });
     }
+    request.session.account = Account.toAPI(account);
     return response.json({ redirect: '/maker' });
   });
 };
@@ -45,6 +47,7 @@ const signup = async (request, response) => {
     const hash = await Account.generateHash(password);
     const newAcc = new Account({ username, password: hash });
     await newAcc.save();
+    request.session.account = Account.toAPI(newAcc);
     return response.json({ redirect: '/maker' });
   } catch (err) {
     if (err.code === 11000) {
